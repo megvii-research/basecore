@@ -76,17 +76,17 @@ def gather_pyobj(obj, obj_name, target_rank_id=0, reset_after_gather=True):
         return [obj]
 
     local_rank = dist.get_rank()
+    client = dist.get_client()
     if local_rank == target_rank_id:
         obj_list = []
         for rank in range(world_size):
             if rank == target_rank_id:
                 obj_list.append(obj)
             else:
-                rank_data = dist.get_client().user_get(f"{obj_name}{rank}")
+                get_func = client.user_pop if reset_after_gather else client.user_get
+                rank_data = get_func(f"{obj_name}{rank}")
                 obj_list.append(pickle.loads(rank_data.data))
-                if reset_after_gather:
-                    dist.get_client().user_set(f"{obj_name}{rank}", None)
 
         return obj_list
     else:
-        dist.get_client().user_set(f"{obj_name}{local_rank}", pickle.dumps(obj))
+        client.user_set(f"{obj_name}{local_rank}", pickle.dumps(obj))

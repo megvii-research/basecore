@@ -96,10 +96,9 @@ class Solver:
                 else:
                     self.grad_manager.backward(total_loss)
 
-        if self.grad_clip_fn is not None:
-            self.grad_clip_fn()
-
         if step_grad:
+            if self.grad_clip_fn is not None:
+                self.grad_clip_fn()
             self.optimizer.step().clear_grad()
 
         return outputs
