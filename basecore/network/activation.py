@@ -5,6 +5,9 @@
 import megengine.module as M
 
 
+__all__ = ["get_activation"]
+
+
 def get_activation(name, **kwargs):
     if not name:
         return None

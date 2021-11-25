@@ -2,16 +2,17 @@
 # -*- coding:utf-8 -*-
 # Copyright (c) 2014-2021 Megvii Inc. All rights reserved.
 
-from typing import Tuple, Union
-
 import megengine.module as M
+from typing import Tuple, Union
 
 from .activation import get_activation
 from .module import freeze
 from .norm import get_norm
 
+__all__ = ["Conv2d", "ConvNormActivation2d", "SandBox"]
 
-# TODO change to another way
+
+# TODO deprecate this class in the future.
 class ConvNormActivation2d(M.Module):
 
     def __init__(
@@ -62,8 +63,46 @@ class ConvNormActivation2d(M.Module):
 
     def forward(self, x):
         x = self.conv(x)
-        x = self.norm(x)
+        if self.norm:
+            x = self.norm(x)
         if self.act:
+            x = self.act(x)
+        return x
+
+
+class Conv2d(M.Conv2d):
+    """
+    A wrapper around :class:`megengine.module.Conv2d`.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        Extra keyword arguments supported in addition to `megengine.module.Conv2d`.
+
+        Args:
+            norm (Union[M.Module, str], optional): a normalization layer or string.
+            activation (Union[callable(Tensor) -> Tensor, str], optional): a callable
+                activation function or a string.
+        """
+        # TODO @wangfeng: think about freeze logic
+        norm = kwargs.pop("norm", None)
+        activation = kwargs.pop("activation", None)
+        super().__init__(*args, **kwargs)
+
+        if isinstance(norm, str):
+            bn_channels = kwargs["out_channels"] if "out_channels" in kwargs else args[1]
+            norm = get_norm(norm, bn_channels)
+        self.norm = norm
+
+        if isinstance(activation, str):
+            activation = get_activation(activation)
+        self.act = activation
+
+    def forward(self, x):
+        x = super().forward(x)
+        if self.norm is not None:
+            x = self.norm(x)
+        if self.activation is not None:
             x = self.act(x)
         return x
 

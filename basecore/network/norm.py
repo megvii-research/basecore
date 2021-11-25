@@ -6,12 +6,15 @@ from functools import partial
 import megengine.module as M
 from megengine.module.normalization import GroupNorm, InstanceNorm, LayerNorm
 
+__all__ = ["get_norm", ]
 
-def get_norm(norm, channels=None, **kwargs):
+
+def get_norm(norm: str, channels=None, **kwargs):
     """
     Args:
-        norm (str): currently support "BN", "SyncBN", "FrozenBN", "GN", "LN" and "IN"
-        channels (int): Norm channels, default
+        norm : currently support "BN", "SyncBN", "FrozenBN", "GN", "LN" and "IN"
+        channels (int): Norm channels, If channels is None, class type will be returned,
+            otherwise return a norm object. Default to None.
         kwargs (dict): extra params like affine, trac
 
     Returns:
