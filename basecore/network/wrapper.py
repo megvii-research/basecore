@@ -102,7 +102,7 @@ class Conv2d(M.Conv2d):
         x = super().forward(x)
         if self.norm is not None:
             x = self.norm(x)
-        if self.activation is not None:
+        if self.act is not None:
             x = self.act(x)
         return x
 
