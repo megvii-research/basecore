@@ -5,18 +5,26 @@
 import megengine.module as M
 
 
-__all__ = ["get_activation"]
+__all__ = ["get_activation", "register_activation"]
+
+
+_ACTIVATION = {
+    "identity": M.Identity,  # identity is different from None
+    "relu": M.ReLU,
+    "prelu": M.PReLU,
+    "sigmoid": M.Sigmoid,
+    "silu": M.SiLU,
+}
 
 
 def get_activation(name, **kwargs):
     if not name:
         return None
 
-    activation = {
-        "identity": M.Identity,  # identity is different from None
-        "relu": M.ReLU,
-        "prelu": M.PReLU,
-        "sigmoid": M.Sigmoid,
-    }
-    act = activation[name](**kwargs)
+    act = _ACTIVATION[name](**kwargs)
     return act
+
+
+def register_activation(name, module):
+    assert name not in _ACTIVATION
+    _ACTIVATION[name] = module
