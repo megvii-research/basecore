@@ -5,6 +5,7 @@
 import os
 import warnings
 import megfile
+import pickle
 
 import megengine as mge
 
@@ -47,7 +48,7 @@ class Checkpoint:
         ensure_dir(self.save_dir)
         ckpt_file = megfile.smart_path_join(self.save_dir, save_name)
         with megfile.smart_open(ckpt_file, "wb") as f:
-            mge.save(ckpt, f)
+            mge.save(ckpt, f, pickle_protocol=pickle.DEFAULT_PROTOCOL)
 
         if save_with_tag and self.tag_file is not None:
             self.tag_checkpoint(ckpt_file)

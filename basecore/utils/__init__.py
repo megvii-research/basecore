@@ -7,13 +7,8 @@ from .dist import *
 from .env_utils import *
 from .file import *
 from .import_utils import import_content_from_path, import_module_with_path
-from .inspector import (
-    get_call_count,
-    get_caller_basedir,
-    get_caller_context,
-    get_last_call_deltatime
-)
-from .logging import *
+from .inspector import *
+from .logger import *
 from .metric import AverageMeter, MeterBuffer
 from .registry import Registry
 from .setup_env import *
