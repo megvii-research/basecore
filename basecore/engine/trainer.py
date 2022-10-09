@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# Copyright (c) 2014-2021 Megvii Inc. All rights reserved.
+# Copyright (c) Megvii Inc. All rights reserved.
 
 import weakref
 
@@ -58,25 +57,26 @@ class BaseTrainer:
         self._hooks.extend(hooks)
 
     def train_in_epoch(self):
-        for self.progress.epoch in range(self.progress.epoch, self.progress.max_epoch + 1):
+        while not self.progress.reach_epoch_end():
             self.before_epoch()
-            for self.progress.iter in range(1, self.progress.max_iter + 1):
+            while not self.progress.reach_iter_end():  # iter training process
                 self.before_iter()
                 self.train_one_iter()
                 self.after_iter()
+                self.progress.next_iter()
             self.after_epoch()
+            self.progress.next_epoch()
 
-    def train(self, start_info, max_info):
+    def train(self, start_info=None, max_info=None):
         """
         Args:
-            start_info (Iterable):
-            max_info (Iterable):
+            start_info (Iterable): [epoch, iter] for training start.
+            max_info (Iterable): [max_epoch, max_iter] for training.
         """
-        # TODO use start_info and max_info as dict, assert them
-        self.progress.update({
-            "epoch": start_info[0], "iter": start_info[1],
-            "max_epoch": max_info[0], "max_iter": max_info[1]
-        })
+        if start_info is not None:
+            self.progress.update({"epoch": start_info[0], "iter": start_info[1]})
+        if max_info is not None:
+            self.progress.update({"max_epoch": max_info[0], "max_iter": max_info[1]})
 
         self.before_train()
 

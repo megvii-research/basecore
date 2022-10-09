@@ -126,3 +126,7 @@ class TestConfig(unittest.TestCase):
         repr(cfg3)
         cfg4 = ConfigDict(dict(ema=dict(enabled=True, momentum=0.999)))
         repr(cfg4)
+
+
+if __name__ == "__main__":
+    unittest.main()

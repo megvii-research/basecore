@@ -4,7 +4,6 @@
 
 import megengine.module as M
 
-
 __all__ = ["get_activation", "register_activation"]
 
 

@@ -1,26 +1,46 @@
 #!/usr/bin/env python3
-# -*- coding:utf-8 -*-
-# Copyright (c) 2014-2021 Megvii Inc. All rights reserved.
+# Copyright (c) Megvii Inc. All rights reserved.
 
 import contextlib
-from typing import Callable, Mapping, Sequence
+from functools import partial
+from typing import Callable, List, Mapping, Sequence
 
 import megengine as mge
+import megengine.optimizer as optim
 from megengine.autodiff import GradManager
 from megengine.optimizer import Optimizer
 
 try:
     import megengine.amp as amp
-    from megegnine.amp import GradScaler
+    from megengine.amp import GradScaler
 except ImportError:
     GradScaler = None
 
-__all__ = ["Solver"]
+__all__ = ["Solver", "clip_grad"]
 
 
 @contextlib.contextmanager
 def nullcontext():
     yield
+
+
+def clip_grad(params: List[mge.Parameter], clip_type="value", **clip_args) -> Callable:
+    """clip gradient function
+
+    Args:
+        params (): model to be clipped.
+        clip_type (str, optional): gradient clip type, should be one of ("value", "norm").
+            Defaults to "value".
+        clip_args (dict, optional): arguments used for gradient clip.
+            For clip by value, it should be {"lower": min, "upper": max}.
+            For clip by norm, it should be {"max_norm": val, "ord": ord}.
+
+    Returns:
+        func (Callable): gradient clip function.
+    """
+    assert clip_type in ("value", "norm"), f"type should be value or norm, unsupported {clip_type}"
+    clip_func = optim.clip_grad_value if clip_type == "value" else optim.clip_grad_norm
+    return partial(clip_func, params, **clip_args)
 
 
 class Solver:

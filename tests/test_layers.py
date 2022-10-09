@@ -38,3 +38,7 @@ class TestLayers(unittest.TestCase):
         self.assertTrue(len(model.state_dict()) == len(prev_state))
         for k, v in prev_state.items():
             self.assertTrue(all(v == model.state_dict()[k]))
+
+
+if __name__ == "__main__":
+    unittest.main()

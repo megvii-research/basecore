@@ -2,8 +2,9 @@
 # -*- coding:utf-8 -*-
 # Copyright (c) 2014-2021 Megvii Inc. All rights reserved.
 
-import megengine.module as M
 from typing import Tuple, Union
+
+import megengine.module as M
 
 from .activation import get_activation
 from .module import freeze
